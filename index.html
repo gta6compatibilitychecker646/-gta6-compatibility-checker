@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================ -->
+<!-- SEO META TAGS                                                  -->
+<!-- ============================================================ -->
+<title>GTA 6 PC Compatibility Checker — Estimate If Your PC Can Run It</title>
+<meta name="description" content="Free unofficial tool to estimate whether your PC can run GTA 6. Enter your CPU, GPU, RAM and storage to get an instant compatibility score, predicted graphics settings and FPS range.">
+<meta name="keywords" content="GTA 6 PC compatibility, GTA 6 system requirements, can my PC run GTA 6, GTA 6 FPS checker">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.com/gta6-pc-compatibility-checker">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="GTA 6 PC Compatibility Checker — Estimate If Your PC Can Run It">
+<meta property="og:description" content="Enter your specs and get an instant, unofficial estimate of how GTA 6 might run on your PC — score, settings, FPS range and upgrade tips.">
+<meta property="og:url" content="https://example.com/gta6-pc-compatibility-checker">
+<meta property="og:site_name" content="GTA 6 Compatibility Checker">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GTA 6 PC Compatibility Checker">
+<meta name="twitter:description" content="Free, unofficial tool to estimate whether your PC can handle GTA 6.">
+
+<!-- JSON-LD Structured Data: WebSite -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "GTA 6 PC Compatibility Checker",
+  "url": "https://example.com/gta6-pc-compatibility-checker",
+  "description": "An unofficial fan-made tool that estimates PC compatibility for GTA 6 based on publicly available and predicted system requirements.",
+  "inLanguage": "en"
+}
+</script>
+
+<!-- JSON-LD Structured Data: FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can my PC run GTA 6?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on your CPU, GPU, RAM and storage. Since Rockstar has not published official PC requirements yet, this tool compares your hardware against community-predicted benchmarks to give you a reasonable estimate, not a guarantee."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate is this compatibility checker?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is as accurate as the publicly available prediction data allows. It is meant as a directional guide rather than a precise benchmark, and results will be refined once Rockstar releases official specifications."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does RAM affect GTA 6 performance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Open-world games with dense traffic, NPC behavior and streaming textures rely heavily on system memory. Low RAM can cause stuttering even when your GPU is powerful enough."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is an SSD recommended for GTA 6?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Modern open-world engines stream assets continuously as you move through the map, and a solid-state drive is expected to be effectively required to avoid texture pop-in and loading stutter."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will a better GPU improve FPS in GTA 6?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Generally yes, especially at higher resolutions and settings, but frame rate in dense city scenes is also heavily influenced by CPU performance, so an upgrade plan should consider both components."
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+  /* ============================================================ */
+  /* DESIGN TOKENS                                                  */
+  /* ============================================================ */
+  :root{
+    --bg:            #08070a;
+    --bg-soft:       #0e0c12;
+    --surface:       #141019;
+    --surface-2:     #1b1522;
+    --border:        rgba(155, 92, 246, 0.18);
+    --border-strong: rgba(155, 92, 246, 0.4);
+    --text:          #f2eef7;
+    --text-muted:    #a79fb3;
+    --text-faint:    #6f6779;
+
+    --purple:        #9b5cf6;
+    --purple-deep:   #6d28d9;
+    --red:           #ef2b4d;
+    --red-deep:      #a3122b;
+
+    --ok:            #2fd67e;
+    --warn:          #f2b705;
+
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+
+    --font-display: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono:    'Consolas', 'SF Mono', Menlo, monospace;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Ambient glow layer behind everything, purely decorative */
+  body::before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(700px 480px at 12% -5%, rgba(155,92,246,0.16), transparent 60%),
+      radial-gradient(600px 420px at 100% 15%, rgba(239,43,77,0.14), transparent 60%),
+      radial-gradient(900px 600px at 50% 110%, rgba(109,40,217,0.12), transparent 60%);
+  }
+
+  img, svg{ max-width: 100%; display:block; }
+
+  a{ color: var(--purple); }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible{
+    outline: 2px solid var(--purple);
+    outline-offset: 3px;
+  }
+
+  .container{
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  h1,h2,h3{
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    margin: 0 0 12px;
+  }
+  h2{ font-size: clamp(1.5rem, 2.4vw, 2rem); text-transform: uppercase; letter-spacing: 0.04em; }
+  h3{ font-size: 1.15rem; }
+  p{ color: var(--text-muted); margin: 0 0 16px; }
+
+  .eyebrow{
+    display:inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--purple);
+    background: rgba(155,92,246,0.1);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+
+  /* ============================================================ */
+  /* NAV                                                            */
+  /* ============================================================ */
+  header.site-header{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(8,7,10,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .logo{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    display:flex;
+    align-items:center;
+    gap: 8px;
+  }
+  .logo span{
+    background: linear-gradient(120deg, var(--purple), var(--red));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  nav.primary-nav ul{
+    list-style:none;
+    display:flex;
+    gap: 22px;
+    margin:0;
+    padding:0;
+  }
+  nav.primary-nav a{
+    color: var(--text-muted);
+    text-decoration:none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: color 0.15s ease;
+  }
+  nav.primary-nav a:hover{ color: var(--text); }
+
+  @media (max-width: 640px){
+    nav.primary-nav{ display:none; }
+  }
+
+  /* ============================================================ */
+  /* HERO                                                           */
+  /* ============================================================ */
+  .hero{
+    padding: 72px 0 56px;
+    text-align: center;
+  }
+  .hero h1{
+    font-size: clamp(2.1rem, 5vw, 3.4rem);
+    line-height: 1.08;
+    text-transform: uppercase;
+    background: linear-gradient(120deg, #ffffff 10%, var(--purple) 55%, var(--red) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-sub{
+    max-width: 620px;
+    margin: 0 auto 28px;
+    font-size: 1.05rem;
+    color: var(--text-muted);
+  }
+  .hero-actions{
+    display:flex;
+    gap: 14px;
+    justify-content:center;
+    flex-wrap: wrap;
+  }
+  .disclaimer-badge{
+    margin: 28px auto 0;
+    max-width: 640px;
+    font-size: 0.82rem;
+    color: var(--text-faint);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+  }
+  .disclaimer-badge strong{ color: var(--text-muted); }
+
+  /* ============================================================ */
+  /* BUTTONS                                                        */
+  /* ============================================================ */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+    text-decoration:none;
+    border-radius: var(--radius-sm);
+    padding: 14px 26px;
+    cursor:pointer;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  }
+  .btn:hover{ transform: translateY(-2px); }
+  .btn-primary{
+    background: linear-gradient(120deg, var(--purple-deep), var(--red-deep));
+    color:#fff;
+    box-shadow: 0 8px 24px rgba(155,92,246,0.25);
+  }
+  .btn-primary:hover{ filter: brightness(1.12); box-shadow: 0 10px 30px rgba(239,43,77,0.32); }
+  .btn-ghost{
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+  .btn-ghost:hover{ background: rgba(155,92,246,0.08); }
+  .btn-large{
+    width:100%;
+    padding: 18px 26px;
+    font-size: 1.05rem;
+  }
+
+  /* ============================================================ */
+  /* CARDS / SECTIONS                                               */
+  /* ============================================================ */
+  section{ padding: 56px 0; }
+  section .section-head{ text-align:center; max-width: 620px; margin: 0 auto 36px; }
+
+  .card{
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .card:hover{ border-color: var(--border-strong); }
+
+  /* ============================================================ */
+  /* FORM                                                           */
+  /* ============================================================ */
+  .form-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 640px){
+    .form-grid{ grid-template-columns: 1fr; }
+  }
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .field input, .field select{
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+  }
+  .field input::placeholder{ color: var(--text-faint); }
+  .field input:focus, .field select:focus{
+    border-color: var(--purple);
+  }
+  .field-hint{ font-size: 0.75rem; color: var(--text-faint); }
+
+  .checker-form{ margin-top: 8px; }
+  .form-actions{ margin-top: 24px; }
+
+  /* ============================================================ */
+  /* RESULTS                                                        */
+  /* ============================================================ */
+  #results{
+    margin-top: 32px;
+    display: none;
+  }
+  #results.visible{ display:block; }
+
+  .result-header{
+    display:flex;
+    flex-wrap: wrap;
+    align-items:center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .verdict-badge{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: 0.02em;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+  }
+  .verdict-excellent{ background: rgba(47,214,126,0.14); color: var(--ok); border: 1px solid rgba(47,214,126,0.4); }
+  .verdict-recommended{ background: rgba(155,92,246,0.14); color: var(--purple); border: 1px solid var(--border-strong); }
+  .verdict-playable{ background: rgba(242,183,5,0.14); color: var(--warn); border: 1px solid rgba(242,183,5,0.4); }
+  .verdict-upgrade{ background: rgba(239,43,77,0.14); color: var(--red); border: 1px solid rgba(239,43,77,0.4); }
+
+  /* Signature element: scan meter */
+  .scan-meter{
+    position: relative;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin: 10px 0 6px;
+  }
+  .scan-meter-fill{
+    position:absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    background: linear-gradient(90deg, var(--purple-deep), var(--purple), var(--red));
+    box-shadow: 0 0 18px rgba(155,92,246,0.55);
+    transition: width 1s cubic-bezier(.22,1,.36,1);
+    border-radius: 999px;
+  }
+  .scan-meter-fill::after{
+    content:"";
+    position:absolute;
+    top:0; right:0; bottom:0;
+    width: 40px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55));
+    animation: sweep 1.6s ease-in-out infinite;
+  }
+  @keyframes sweep{
+    0%,100%{ opacity: 0.15; }
+    50%{ opacity: 0.65; }
+  }
+  .score-row{
+    display:flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    margin-bottom: 4px;
+  }
+  .score-number{ color: var(--text); font-weight: 700; }
+
+  .results-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 24px;
+  }
+  @media (max-width: 640px){ .results-grid{ grid-template-columns: 1fr; } }
+
+  .result-tile{
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+  }
+  .result-tile h3{
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+  }
+  .result-tile p{ margin:0; color: var(--text); font-size: 1rem; font-weight: 600;}
+  .result-tile ul{ margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 0.92rem;}
+  .result-tile li{ margin-bottom: 6px; }
+
+  /* ============================================================ */
+  /* REQUIREMENTS TABLES                                            */
+  /* ============================================================ */
+  .req-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+  }
+  @media (max-width: 760px){ .req-grid{ grid-template-columns: 1fr; } }
+
+  .req-card h3{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .req-tag{
+    font-size: 0.65rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.06em;
+  }
+  .tag-min{ background: rgba(242,183,5,0.15); color: var(--warn); border:1px solid rgba(242,183,5,0.35); }
+  .tag-rec{ background: rgba(47,214,126,0.15); color: var(--ok); border:1px solid rgba(47,214,126,0.35); }
+
+  table.spec-table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 0.9rem;
+  }
+  table.spec-table th{
+    text-align:left;
+    color: var(--text-faint);
+    font-weight:600;
+    padding: 8px 4px;
+    width: 38%;
+    vertical-align: top;
+  }
+  table.spec-table td{
+    padding: 8px 4px;
+    color: var(--text);
+    border-top: 1px solid var(--border);
+  }
+  table.spec-table th{ border-top: 1px solid var(--border); }
+  table.spec-table tr:first-child th, table.spec-table tr:first-child td{ border-top:none; }
+
+  .req-note{
+    margin-top: 16px;
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+
+  /* ============================================================ */
+  /* FAQ                                                            */
+  /* ============================================================ */
+  .faq-item{
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .faq-item summary{
+    cursor:pointer;
+    list-style:none;
+    padding: 18px 22px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary::after{
+    content: "+";
+    font-size: 1.4rem;
+    color: var(--purple);
+    flex-shrink:0;
+    transition: transform 0.2s ease;
+  }
+  .faq-item[open] summary::after{ transform: rotate(45deg); }
+  .faq-item .faq-answer{
+    padding: 0 22px 20px;
+    color: var(--text-muted);
+  }
+
+  /* ============================================================ */
+  /* ABOUT                                                          */
+  /* ============================================================ */
+  .about-card{ text-align:left; }
+  .about-card ul{ color: var(--text-muted); padding-left: 20px; }
+  .about-card li{ margin-bottom: 8px; }
+
+  /* ============================================================ */
+  /* FOOTER                                                         */
+  /* ============================================================ */
+  footer.site-footer{
+    border-top: 1px solid var(--border);
+    padding: 40px 0 30px;
+    margin-top: 40px;
+  }
+  .footer-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .footer-links{
+    display:flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    list-style:none;
+    padding:0;
+    margin:0;
+  }
+  .footer-links a{
+    color: var(--text-muted);
+    text-decoration:none;
+    font-size: 0.85rem;
+  }
+  .footer-links a:hover{ color: var(--text); }
+  .footer-fine{
+    font-size: 0.78rem;
+    color: var(--text-faint);
+    line-height: 1.7;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  /* ============================================================ */
+  /* COOKIE BANNER                                                  */
+  /* ============================================================ */
+  .cookie-banner{
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 100;
+    max-width: 620px;
+    margin: 0 auto;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    display: none;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: 0 12px 34px rgba(0,0,0,0.45);
+  }
+  .cookie-banner.visible{ display:flex; }
+  .cookie-banner p{
+    margin:0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    flex: 1 1 260px;
+  }
+  .cookie-banner p a{ color: var(--purple); }
+  .cookie-banner .btn{
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    flex: 0 0 auto;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .scan-meter-fill, .scan-meter-fill::after, .btn{ transition:none; animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<!-- HEADER / NAV                                                      -->
+<!-- ================================================================ -->
+<header class="site-header">
+  <div class="nav-inner">
+    <a href="#top" class="logo">GTA6<span>COMPAT</span></a>
+    <nav class="primary-nav" aria-label="Primary">
+      <ul>
+        <li><a href="#checker">Checker</a></li>
+        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#upgrade-guide">Upgrade Guide</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============================================================ -->
+  <!-- HERO                                                           -->
+  <!-- ============================================================ -->
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Unofficial Fan-Made Estimator</span>
+      <h1>GTA 6 PC Compatibility Checker</h1>
+      <p class="hero-sub">
+        Enter your PC's specs below to get an instant, unofficial estimate of how
+        Grand Theft Auto 6 is likely to run on your machine — including a compatibility
+        score, predicted graphics settings, FPS range and possible bottlenecks.
+      </p>
+      <div class="hero-actions">
+        <a href="#checker" class="btn btn-primary">Check My PC Now</a>
+        <a href="#requirements" class="btn btn-ghost">View Requirements</a>
+      </div>
+      <p class="disclaimer-badge">
+        <strong>Heads up:</strong> Rockstar Games has not announced a PC version of GTA 6
+        or published official PC system requirements. Every figure on this page is a
+        community-informed prediction, not an official benchmark.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CHECKER FORM                                                   -->
+  <!-- ============================================================ -->
+  <section id="checker">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Step 1</span>
+        <h2>Enter Your System Specs</h2>
+        <p>Fill in what you know — you can leave a field blank and we'll assume a neutral mid-range value.</p>
+      </div>
+
+      <div class="card">
+        <form class="checker-form" id="compat-form" novalidate>
+          <div class="form-grid">
+
+            <div class="field">
+              <label for="cpu">Processor (CPU)</label>
+              <input type="text" id="cpu" name="cpu" placeholder="e.g. Ryzen 7 7800X3D" autocomplete="off">
+              <span class="field-hint">Model name, as precise as possible.</span>
+            </div>
+
+            <div class="field">
+              <label for="gpu">Graphics Card (GPU)</label>
+              <input type="text" id="gpu" name="gpu" placeholder="e.g. RTX 4070" autocomplete="off">
+              <span class="field-hint">Model name of your dedicated or integrated GPU.</span>
+            </div>
+
+            <div class="field">
+              <label for="ram">System RAM (GB)</label>
+              <input type="number" id="ram" name="ram" min="1" max="256" placeholder="e.g. 16" inputmode="numeric">
+            </div>
+
+            <div class="field">
+              <label for="vram">Video Memory / VRAM (GB)</label>
+              <input type="number" id="vram" name="vram" min="1" max="48" placeholder="e.g. 8" inputmode="numeric">
+            </div>
+
+            <div class="field">
+              <label for="storage-type">Storage Type</label>
+              <select id="storage-type" name="storage-type">
+                <option value="ssd" selected>SSD / NVMe</option>
+                <option value="hdd">HDD (mechanical)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="storage-space">Available Storage (GB)</label>
+              <input type="number" id="storage-space" name="storage-space" min="1" max="4000" placeholder="e.g. 250" inputmode="numeric">
+            </div>
+
+            <div class="field">
+              <label for="os">Operating System</label>
+              <select id="os" name="os">
+                <option value="win11" selected>Windows 11 (64-bit)</option>
+                <option value="win10">Windows 10 (64-bit)</option>
+                <option value="other">macOS / Linux / Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="resolution">Target Screen Resolution</label>
+              <select id="resolution" name="resolution">
+                <option value="1080" selected>1920 × 1080 (Full HD)</option>
+                <option value="1440">2560 × 1440 (QHD)</option>
+                <option value="2160">3840 × 2160 (4K UHD)</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-large" id="check-btn">
+              Check Compatibility
+            </button>
+          </div>
+        </form>
+
+        <!-- ============================================================ -->
+        <!-- RESULTS (populated by JavaScript, no page reload)             -->
+        <!-- ============================================================ -->
+        <div id="results" aria-live="polite">
+
+          <div class="result-header">
+            <div>
+              <span class="eyebrow">Estimated Result</span>
+              <h2 style="margin-bottom:0;">Your Compatibility Verdict</h2>
+            </div>
+            <span id="verdict-badge" class="verdict-badge">—</span>
+          </div>
+
+          <div class="score-row">
+            <span>Overall Compatibility Score</span>
+            <span><span id="score-number" class="score-number">0</span> / 100</span>
+          </div>
+          <div class="scan-meter">
+            <div class="scan-meter-fill" id="scan-fill"></div>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-tile">
+              <h3>Estimated Graphics Settings</h3>
+              <p id="result-settings">—</p>
+            </div>
+            <div class="result-tile">
+              <h3>Estimated FPS Category</h3>
+              <p id="result-fps">—</p>
+            </div>
+            <div class="result-tile">
+              <h3>Possible Bottlenecks</h3>
+              <ul id="result-bottlenecks"><li>—</li></ul>
+            </div>
+            <div class="result-tile">
+              <h3>Suggested Upgrades</h3>
+              <ul id="result-upgrades"><li>—</li></ul>
+            </div>
+          </div>
+
+          <p class="req-note" style="margin-top:22px;">
+            This compatibility result is an unofficial estimate based on publicly available
+            system requirements and should not be considered an official benchmark.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SYSTEM REQUIREMENTS                                            -->
+  <!-- ============================================================ -->
+  <section id="requirements">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Reference Data</span>
+        <h2>Predicted System Requirements</h2>
+        <p>
+          Rockstar has not published official PC specs. The figures below are our
+          best-effort predictions, built from console hardware and comparable
+          open-world engine demands, intended as a general planning guide.
+        </p>
+      </div>
+
+      <div class="req-grid">
+        <div class="card req-card">
+          <h3>Minimum <span class="req-tag tag-min">1080p · Low · 30 FPS</span></h3>
+          <table class="spec-table">
+            <tr><th>CPU</th><td>Intel Core i5-6600K / AMD Ryzen 5 1600</td></tr>
+            <tr><th>GPU</th><td>NVIDIA GTX 1660 / AMD RX 5600 XT (6GB VRAM)</td></tr>
+            <tr><th>RAM</th><td>16 GB</td></tr>
+            <tr><th>Storage</th><td>150 GB SSD (required)</td></tr>
+            <tr><th>OS</th><td>Windows 10 / 11 (64-bit)</td></tr>
+          </table>
+        </div>
+
+        <div class="card req-card">
+          <h3>Recommended <span class="req-tag tag-rec">1440p · High · 60 FPS</span></h3>
+          <table class="spec-table">
+            <tr><th>CPU</th><td>8-core CPU, e.g. Ryzen 7 7800X3D / Core i7-13700K</td></tr>
+            <tr><th>GPU</th><td>NVIDIA RTX 4070 / AMD RX 7800 XT (12GB VRAM)</td></tr>
+            <tr><th>RAM</th><td>32 GB</td></tr>
+            <tr><th>Storage</th><td>150+ GB NVMe SSD</td></tr>
+            <tr><th>OS</th><td>Windows 11 (64-bit)</td></tr>
+          </table>
+        </div>
+      </div>
+      <p class="req-note">
+        These tables reflect community and analyst predictions as of mid-2026. They will
+        be revised the moment Rockstar Games publishes an official specification sheet.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- UPGRADE GUIDE                                                  -->
+  <!-- ============================================================ -->
+  <section id="upgrade-guide">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Buyer's Guide</span>
+        <h2>How to Upgrade Your PC for GTA 6</h2>
+        <p>
+          If your result came back "Playable" or "Upgrade Needed," here's where your
+          money is best spent first — based on how open-world engines like this one
+          typically distribute their workload across your hardware.
+        </p>
+      </div>
+
+      <div class="card about-card">
+        <h3>Start With the CPU, Not the GPU</h3>
+        <p>
+          It's tempting to chase the biggest graphics card on the shelf, but open-world
+          games are often limited by the processor before they're limited by the GPU.
+          Every pedestrian on the sidewalk, every car changing lanes, and every police
+          reaction is a calculation your CPU has to run, frame after frame. A six-core
+          chip from several years ago can still push pixels reasonably well, but it will
+          choke in a busy intersection long before a modern eight-core chip does. If
+          you're planning a build specifically for a game like this, prioritize core
+          count and cache size over clock speed alone.
+        </p>
+
+        <h3>Choosing a Graphics Card</h3>
+        <p>
+          GPU choice should be driven by your target resolution, not by whatever card
+          has the biggest number in its name. At 1080p, a mid-range card with 8GB of
+          VRAM is usually enough to hold detailed textures without stutter. Push to
+          1440p or 4K, and VRAM matters more than raw shader count — texture streaming
+          in a large open world eats memory quickly, and running out of it causes
+          stutter no amount of GPU horsepower can fix. If ray tracing and upscaling
+          technologies like DLSS or FSR are supported at launch, they'll help stretch a
+          mid-range card further at higher resolutions, but budget as if you'll need
+          the raw performance without relying on them.
+        </p>
+
+        <h3>RAM: Don't Cut Corners</h3>
+        <p>
+          Sixteen gigabytes is a reasonable floor for a modern open-world title, but it
+          leaves little headroom once you account for the operating system, background
+          apps, a browser, and maybe a Discord call running alongside the game. Thirty-two
+          gigabytes gives you breathing room that shows up as fewer hitches during
+          longer play sessions, particularly if you're someone who keeps a dozen browser
+          tabs open in the background.
+        </p>
+
+        <h3>Storage: SSD Is Non-Negotiable</h3>
+        <p>
+          This is the one area where there's little ambiguity. Large open worlds stream
+          assets continuously as you move through them, and a mechanical hard drive
+          simply can't read data fast enough to keep up. Expect textures to load in
+          late, distant objects to pop into view abruptly, and load times measured in
+          minutes rather than seconds on an HDD. An NVMe SSD isn't a luxury upgrade here
+          — treat it as part of the minimum spec.
+        </p>
+      </div>
+
+      <div class="section-head" style="margin-top:40px;">
+        <h3 style="text-transform:uppercase; letter-spacing:0.04em;">Budget Tiers at a Glance</h3>
+      </div>
+      <div class="results-grid" style="margin-top:0;">
+        <div class="result-tile">
+          <h3>Entry Tier</h3>
+          <p style="font-weight:600; font-size:0.95rem;">1080p, Low–Medium settings</p>
+          <p style="font-weight:400; color:var(--text-muted); font-size:0.88rem; margin-top:8px;">
+            A 6-core CPU, an 8GB-VRAM mid-range GPU, 16GB RAM, and an NVMe SSD. Built to
+            clear the predicted minimum bar without overspending.
+          </p>
+        </div>
+        <div class="result-tile">
+          <h3>Balanced Tier</h3>
+          <p style="font-weight:600; font-size:0.95rem;">1440p, High settings</p>
+          <p style="font-weight:400; color:var(--text-muted); font-size:0.88rem; margin-top:8px;">
+            An 8-core CPU, a 12GB-VRAM upper-mid GPU, 32GB RAM, and NVMe storage. The
+            sweet spot for most players who want headroom without chasing flagship parts.
+          </p>
+        </div>
+        <div class="result-tile">
+          <h3>Enthusiast Tier</h3>
+          <p style="font-weight:600; font-size:0.95rem;">4K, Ultra settings, Ray Tracing</p>
+          <p style="font-weight:400; color:var(--text-muted); font-size:0.88rem; margin-top:8px;">
+            A flagship CPU with large cache, a high-end GPU with 16GB+ VRAM, 32GB RAM,
+            and a fast Gen4/Gen5 NVMe drive. Built for maximum settings at high resolution.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- FAQ                                                            -->
+  <!-- ============================================================ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Common Questions</span>
+        <h2>Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Can my PC run GTA 6?</summary>
+          <div class="faq-answer">
+            <p>
+              It depends on your CPU, GPU, RAM and storage setup relative to the predicted
+              requirements above. Use the checker at the top of this page to get a
+              personalized estimate rather than guessing from a spec sheet alone — every
+              PC's real-world performance varies with background software, drivers and
+              thermals too.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How accurate is this compatibility checker?</summary>
+          <div class="faq-answer">
+            <p>
+              This tool is built on publicly discussed predictions rather than an official
+              Rockstar spec sheet, since one does not exist yet. Treat the score as a
+              directional signal — useful for spotting an obvious weak point in your build —
+              rather than a precise, lab-tested benchmark number.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Does RAM affect GTA 6 performance?</summary>
+          <div class="faq-answer">
+            <p>
+              Yes, significantly. Large open-world titles keep huge amounts of map data,
+              NPC logic and streamed textures in memory at once. Falling short on RAM
+              typically shows up as stutter and hitching during driving or crowded scenes,
+              even on a PC with a capable graphics card.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Is an SSD recommended for GTA 6?</summary>
+          <div class="faq-answer">
+            <p>
+              Yes. Modern Rockstar titles already lean heavily on fast storage for asset
+              streaming, and a game of this scale is expected to continue that trend.
+              An SSD, ideally NVMe, is treated as close to mandatory in our predictions
+              to avoid texture pop-in and long load times.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Will a better GPU improve FPS in GTA 6?</summary>
+          <div class="faq-answer">
+            <p>
+              Generally yes, particularly at 1440p and 4K resolutions or with ray tracing
+              enabled. That said, dense city traffic and pedestrian simulation tend to be
+              CPU-heavy in open-world engines, so a GPU upgrade alone may not fix low FPS
+              if your processor is the limiting factor.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What if the checker doesn't recognize my exact CPU or GPU?</summary>
+          <div class="faq-answer">
+            <p>
+              The tool matches common CPU and GPU model names against a built-in list of
+              known hardware tiers. If your exact model isn't in that list, it falls back
+              to a neutral, mid-range assumption rather than guessing wildly in either
+              direction. For the most reliable read, compare your component's known
+              benchmark tier against the minimum and recommended tables above.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>When will official GTA 6 PC requirements be released?</summary>
+          <div class="faq-answer">
+            <p>
+              Rockstar has only confirmed a console release and has not announced a PC
+              version or date. Based on the studio's history with previous titles, a PC
+              release — and official specs alongside it — would likely follow the
+              console launch by several months to over a year. This page will be updated
+              with real figures the moment that information becomes available.
+            </p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ABOUT                                                          -->
+  <!-- ============================================================ -->
+  <section id="about">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">About This Tool</span>
+        <h2>What This Site Is (and Isn't)</h2>
+      </div>
+
+      <div class="card about-card">
+        <p>
+          This website is an unofficial, fan-made compatibility estimator. It is not
+          produced, endorsed, or affiliated with Rockstar Games or Take-Two Interactive.
+          Its purpose is simply to help players compare their own PC specifications
+          against publicly available and predicted information about GTA 6's likely
+          hardware demands.
+        </p>
+        <ul>
+          <li>No official GTA 6 PC requirements exist at the time of writing.</li>
+          <li>All scoring logic runs locally in your browser — nothing you type is uploaded anywhere.</li>
+          <li>Results are directional estimates meant to help with upgrade planning, not guarantees of performance.</li>
+          <li>Requirement figures will be updated if and when Rockstar publishes an official spec sheet.</li>
+        </ul>
+
+        <h3 style="margin-top:20px;">How the Scoring Works</h3>
+        <p>
+          The checker weighs seven inputs — CPU, GPU, RAM, VRAM, storage type, free
+          storage space, and operating system — against the predicted minimum and
+          recommended tables on this page. Each input contributes a portion of a 100-point
+          score, and the total determines whether you land in the Excellent, Recommended,
+          Playable, or Upgrade Needed bracket. CPU and GPU carry the most weight since
+          they're the components most likely to bottleneck an open-world title, while
+          storage type and available space are weighted enough to flag a mechanical hard
+          drive as a real problem rather than a minor one.
+        </p>
+
+        <h3 style="margin-top:20px;">Who Runs This Site</h3>
+        <p>
+          This is an independent, fan-run reference tool maintained by a single operator
+          rather than a studio or publisher. Requirement predictions are cross-checked
+          against publicly discussed community benchmarks and updated as new information
+          becomes available. If you spot outdated or inaccurate information, use the
+          contact details below to flag it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PRIVACY POLICY                                                 -->
+  <!-- ============================================================ -->
+  <section id="privacy">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Legal</span>
+        <h2>Privacy Policy</h2>
+      </div>
+      <div class="card about-card">
+        <p><strong>Overview.</strong> This site does not require an account, and the
+          hardware specifications you type into the compatibility checker are processed
+          entirely in your own browser. They are not transmitted to, or stored on, any
+          server.</p>
+
+        <p><strong>Automatically collected data.</strong> Like most websites, this site's
+          hosting provider may automatically log standard technical information such as
+          IP address, browser type, device type, and pages visited, for basic security
+          and traffic analysis purposes.</p>
+
+        <p><strong>Cookies and advertising.</strong> This site may display advertising
+          served by Google AdSense. Google and its advertising partners, including
+          Google, use cookies to serve ads based on a user's prior visits to this or
+          other websites. You can opt out of personalized advertising by visiting
+          <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer">Google's Ads Settings</a>,
+          or learn more about how Google uses data at
+          <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">policies.google.com/technologies/ads</a>.</p>
+
+        <p><strong>Third-party links.</strong> This site may link to external resources.
+          We are not responsible for the privacy practices or content of third-party
+          sites.</p>
+
+        <p><strong>Children's privacy.</strong> This site is not directed at children
+          under 13, and we do not knowingly collect personal information from children.</p>
+
+        <p><strong>Your choices.</strong> You can disable cookies through your browser
+          settings at any time. Doing so will not affect the compatibility checker
+          itself, which does not rely on cookies to function.</p>
+
+        <p><strong>Changes to this policy.</strong> This policy may be updated from time
+          to time. The date below reflects the most recent revision.</p>
+
+        <p><strong>Contact.</strong> Questions about this policy can be sent to
+          <a href="mailto:ahmadkhankhattak1@gmail.com">ahmadkhankhattak1@gmail.com</a>.</p>
+
+        <p class="req-note">Last updated: July 10, 2026.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- TERMS & DISCLAIMER                                             -->
+  <!-- ============================================================ -->
+  <section id="terms">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Legal</span>
+        <h2>Terms &amp; Disclaimer</h2>
+      </div>
+      <div class="card about-card">
+        <p><strong>Not an official product.</strong> This is an independent, fan-made
+          tool. It is not produced, sponsored, or endorsed by Rockstar Games, Take-Two
+          Interactive, or any of their affiliates. GTA 6 and related names are
+          trademarks of their respective owners and are used here only to describe the
+          subject of the tool.</p>
+
+        <p><strong>Accuracy of information.</strong> Because Rockstar has not published
+          official PC system requirements, all figures, tiers, and scores on this site
+          are predictions. They are provided "as is," without warranty of accuracy, and
+          should not be treated as a guarantee of how the game will actually perform on
+          your hardware.</p>
+
+        <p><strong>No liability.</strong> Use of this site and its compatibility checker
+          is at your own risk. We are not liable for any hardware purchase, upgrade
+          decision, or other action taken based on the information provided here.</p>
+
+        <p><strong>Acceptable use.</strong> Please don't attempt to scrape, disrupt, or
+          misuse this site or its underlying code in ways that harm other visitors.</p>
+
+        <p><strong>Intellectual property.</strong> The written content, design, and
+          scoring logic on this site are original works. Brief excerpts may be quoted
+          with attribution and a link back to this site; wholesale republishing is not
+          permitted.</p>
+
+        <p><strong>Changes to these terms.</strong> These terms may be revised
+          periodically. Continued use of the site after changes are posted constitutes
+          acceptance of the updated terms.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CONTACT                                                        -->
+  <!-- ============================================================ -->
+  <section id="contact-section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Get in Touch</span>
+        <h2>Contact</h2>
+        <p>
+          Spotted outdated numbers, found a bug in the checker, or have a correction to
+          suggest? Reach out directly — corrections and feedback from real GTA
+          enthusiasts are what keep this tool useful.
+        </p>
+      </div>
+      <div class="card about-card" style="text-align:center;">
+        <p style="margin-bottom:0;">
+          <strong>Email:</strong>
+          <a href="mailto:ahmadkhankhattak1@gmail.com">ahmadkhankhattak1@gmail.com</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================================================================ -->
+<!-- FOOTER                                                            -->
+<!-- ================================================================ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <a href="#top" class="logo">GTA6<span>COMPAT</span></a>
+      <ul class="footer-links">
+        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a href="#terms">Terms &amp; Disclaimer</a></li>
+        <li><a href="#contact-section">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-fine">
+      <p>
+        This site is an unofficial, fan-made tool and is not affiliated with or
+        endorsed by Rockstar Games or Take-Two Interactive. All compatibility results
+        are unofficial estimates and should not be considered an official benchmark.
+      </p>
+      <p>&copy; 2026 GTA 6 Compatibility Checker. All rights reserved. Last updated: July 10, 2026.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ================================================================ -->
+<!-- COOKIE CONSENT NOTICE (required once AdSense/ad cookies are live)  -->
+<!-- ================================================================ -->
+<div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Cookie notice">
+  <p>
+    This site may use cookies to serve relevant ads. By continuing to browse, you
+    accept this. See our <a href="#privacy">Privacy Policy</a> for details.
+  </p>
+  <button type="button" id="cookie-accept" class="btn btn-primary">Accept</button>
+</div>
+
+<!-- ================================================================ -->
+<!-- JAVASCRIPT — All compatibility logic runs client-side              -->
+<!-- ================================================================ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ------------------------------------------------------------ */
+  /* Reference keyword tables used to estimate CPU / GPU tiers.     */
+  /* Scores are out of 25 (CPU) and 30 (GPU). Matching is done by   */
+  /* lowercase substring search, checked from highest tier down.    */
+  /* ------------------------------------------------------------ */
+  var CPU_TIERS = [
+    { score: 25, label: "Flagship", keys: ["9800x3d","9950x3d","9950x","7950x3d","14900k","13900k","ultra 9","285k","9950x3d","ryzen 9 9","i9-14","i9-13"] },
+    { score: 21, label: "High-End", keys: ["7800x3d","7700x","7900x","13700k","12700k","5800x3d","ryzen 7","i7-12","i7-13","i7-14","core i7"] },
+    { score: 16, label: "Mid-Range", keys: ["5600x","12600k","11700","10700","ryzen 5 5","ryzen 5 7","i5-12","i5-13","i5-11","core i5"] },
+    { score: 11, label: "Entry-Level", keys: ["3600","i5-9400","i5-10400","i5-6600","ryzen 5 1","ryzen 3","fx-8"] },
+    { score: 6,  label: "Below Minimum", keys: ["pentium","celeron","atom","fx-6","fx-4"] }
+  ];
+  var CPU_DEFAULT = { score: 13, label: "Unrecognized (assumed mid-range)" };
+
+  var GPU_TIERS = [
+    { score: 30, label: "Flagship", keys: ["5090","4090","5080","7900xtx"] },
+    { score: 25, label: "High-End", keys: ["4080","4070 ti","7900xt","7800xt","9070xt","5070 ti"] },
+    { score: 19, label: "Upper Mid-Range", keys: ["4070","3080","6800xt","6800","5070","9070"] },
+    { score: 13, label: "Mid-Range", keys: ["4060 ti","3070","3060 ti","6700xt","5060 ti"] },
+    { score: 8,  label: "Entry Mid-Range", keys: ["4060","3060","2070","1080","5700xt","6600xt"] },
+    { score: 4,  label: "Entry-Level", keys: ["1660","1650","3050","1070","5600xt","rx 570","rx 580"] },
+    { score: 2,  label: "Below Minimum", keys: ["1050","1030","gt 730","integrated","uhd graphics","iris xe","vega 8","vega 3","radeon graphics"] }
+  ];
+  var GPU_DEFAULT = { score: 11, label: "Unrecognized (assumed entry-level)" };
+
+  /* Look up a component's tier score from free-text input. */
+  function matchTier(inputText, tiers, fallback){
+    var text = (inputText || "").toLowerCase().trim();
+    if(!text){ return fallback; }
+    for(var i = 0; i < tiers.length; i++){
+      var tier = tiers[i];
+      for(var j = 0; j < tier.keys.length; j++){
+        if(text.indexOf(tier.keys[j]) !== -1){
+          return { score: tier.score, label: tier.label };
+        }
+      }
+    }
+    return fallback;
+  }
+
+  /* ------------------------------------------------------------ */
+  /* Numeric component scorers                                      */
+  /* ------------------------------------------------------------ */
+  function scoreRam(gb){
+    if(!gb) return 7;
+    if(gb >= 32) return 15;
+    if(gb >= 16) return 11;
+    if(gb >= 12) return 7;
+    if(gb >= 8)  return 4;
+    return 1;
+  }
+  function scoreVram(gb){
+    if(!gb) return 7;
+    if(gb >= 12) return 15;
+    if(gb >= 8)  return 11;
+    if(gb >= 6)  return 7;
+    if(gb >= 4)  return 4;
+    return 1;
+  }
+  function scoreStorageType(type){
+    return type === "hdd" ? 1 : 6;
+  }
+  function scoreStorageSpace(gb){
+    if(!gb) return 2;
+    if(gb >= 200) return 4;
+    if(gb >= 150) return 3;
+    if(gb >= 100) return 2;
+    return 0;
+  }
+  function scoreOS(os){
+    if(os === "win11") return 5;
+    if(os === "win10") return 4;
+    return 1;
+  }
+
+  /* ------------------------------------------------------------ */
+  /* Verdict bucket from total score (0-100)                        */
+  /* ------------------------------------------------------------ */
+  function getVerdict(total){
+    if(total >= 85) return { key: "excellent",   label: "✅ Excellent",       cls: "verdict-excellent" };
+    if(total >= 68) return { key: "recommended", label: "🟢 Recommended",     cls: "verdict-recommended" };
+    if(total >= 45) return { key: "playable",    label: "🟡 Playable",        cls: "verdict-playable" };
+    return                 { key: "upgrade",     label: "🔴 Upgrade Needed",  cls: "verdict-upgrade" };
+  }
+
+  var SETTINGS_BY_VERDICT = {
+    excellent:   "Ultra settings with ray tracing enabled",
+    recommended: "High settings, ray tracing optional",
+    playable:    "Medium to Low settings, reduced draw distance",
+    upgrade:     "Low settings recommended, resolution scaling advised"
+  };
+
+  var FPS_BY_VERDICT = {
+    excellent:   "60–120+ FPS in most scenes",
+    recommended: "A stable 60 FPS at your chosen resolution",
+    playable:    "30–45 FPS, with dips in dense areas",
+    upgrade:     "Below 30 FPS, stuttering likely"
+  };
+
+  /* ------------------------------------------------------------ */
+  /* Build bottleneck + upgrade suggestion lists                    */
+  /* ------------------------------------------------------------ */
+  function buildInsights(spec, cpuTier, gpuTier){
+    var bottlenecks = [];
+    var upgrades = [];
+
+    if(spec.storageType === "hdd"){
+      bottlenecks.push("Mechanical HDD storage will likely cause texture pop-in and slow asset streaming.");
+      upgrades.push("Move the game to a solid-state drive — NVMe SSD gives the best streaming performance.");
+    }
+    if(spec.storageSpace && spec.storageSpace < 150){
+      bottlenecks.push("Available free storage is below the predicted 150 GB install size.");
+      upgrades.push("Free up or add storage — aim for at least 150–200 GB available.");
+    }
+    if(spec.ram && spec.ram < 16){
+      bottlenecks.push("System RAM is below the predicted minimum of 16 GB, which may cause stutter.");
+      upgrades.push("Upgrade to at least 16 GB of RAM (32 GB for a safer margin).");
+    }
+    if(spec.vram && spec.vram < 8){
+      bottlenecks.push("VRAM below 8 GB may force lower texture quality, especially above 1080p.");
+      upgrades.push("Consider a GPU with 8 GB+ VRAM for smoother texture streaming.");
+    }
+    if(gpuTier.score <= 8 && spec.resolution !== "1080"){
+      bottlenecks.push("Your GPU tier looks light for the resolution you selected.");
+      upgrades.push("Either lower your target resolution or upgrade to a more powerful GPU.");
+    }
+    if(cpuTier.score <= 11){
+      bottlenecks.push("CPU performance may struggle with dense traffic and NPC simulation.");
+      upgrades.push("A modern 6–8 core CPU will noticeably help frame consistency in busy areas.");
+    }
+    if(spec.os === "other"){
+      bottlenecks.push("Non-Windows operating systems carry extra compatibility uncertainty.");
+      upgrades.push("Plan for a Windows 10/11 (64-bit) installation, which is the expected target OS.");
+    }
+
+    if(bottlenecks.length === 0){
+      bottlenecks.push("No major bottlenecks detected based on the specs provided.");
+    }
+    if(upgrades.length === 0){
+      upgrades.push("Your current specs look well balanced — no urgent upgrades suggested.");
+    }
+
+    return { bottlenecks: bottlenecks, upgrades: upgrades };
+  }
+
+  /* ------------------------------------------------------------ */
+  /* Main handler                                                    */
+  /* ------------------------------------------------------------ */
+  var form = document.getElementById("compat-form");
+  var resultsBox = document.getElementById("results");
+
+  form.addEventListener("submit", function(evt){
+    evt.preventDefault();
+
+    var spec = {
+      cpu: document.getElementById("cpu").value,
+      gpu: document.getElementById("gpu").value,
+      ram: parseFloat(document.getElementById("ram").value) || 0,
+      vram: parseFloat(document.getElementById("vram").value) || 0,
+      storageType: document.getElementById("storage-type").value,
+      storageSpace: parseFloat(document.getElementById("storage-space").value) || 0,
+      os: document.getElementById("os").value,
+      resolution: document.getElementById("resolution").value
+    };
+
+    var cpuTier = matchTier(spec.cpu, CPU_TIERS, CPU_DEFAULT);
+    var gpuTier = matchTier(spec.gpu, GPU_TIERS, GPU_DEFAULT);
+
+    var total =
+      cpuTier.score +
+      gpuTier.score +
+      scoreRam(spec.ram) +
+      scoreVram(spec.vram) +
+      scoreStorageType(spec.storageType) +
+      scoreStorageSpace(spec.storageSpace) +
+      scoreOS(spec.os);
+
+    total = Math.max(0, Math.min(100, Math.round(total)));
+
+    var verdict = getVerdict(total);
+    var insights = buildInsights(spec, cpuTier, gpuTier);
+
+    /* --- Paint results into the DOM --- */
+    var badge = document.getElementById("verdict-badge");
+    badge.textContent = verdict.label;
+    badge.className = "verdict-badge " + verdict.cls;
+
+    document.getElementById("score-number").textContent = total;
+
+    var fill = document.getElementById("scan-fill");
+    // reset then animate on next frame for a visible fill transition
+    fill.style.width = "0%";
+    window.requestAnimationFrame(function(){
+      window.requestAnimationFrame(function(){
+        fill.style.width = total + "%";
+      });
+    });
+
+    document.getElementById("result-settings").textContent = SETTINGS_BY_VERDICT[verdict.key];
+    document.getElementById("result-fps").textContent = FPS_BY_VERDICT[verdict.key];
+
+    var bottleneckList = document.getElementById("result-bottlenecks");
+    bottleneckList.innerHTML = "";
+    insights.bottlenecks.forEach(function(text){
+      var li = document.createElement("li");
+      li.textContent = text;
+      bottleneckList.appendChild(li);
+    });
+
+    var upgradeList = document.getElementById("result-upgrades");
+    upgradeList.innerHTML = "";
+    insights.upgrades.forEach(function(text){
+      var li = document.createElement("li");
+      li.textContent = text;
+      upgradeList.appendChild(li);
+    });
+
+    resultsBox.classList.add("visible");
+    resultsBox.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ------------------------------------------------------------ */
+  /* Cookie consent banner                                          */
+  /* Shown once per browser until the visitor accepts.               */
+  /* ------------------------------------------------------------ */
+  try{
+    var banner = document.getElementById("cookie-banner");
+    var acceptBtn = document.getElementById("cookie-accept");
+    var CONSENT_KEY = "gta6compat_cookie_consent";
+
+    if(banner && acceptBtn){
+      if(window.localStorage.getItem(CONSENT_KEY) !== "accepted"){
+        banner.classList.add("visible");
+      }
+      acceptBtn.addEventListener("click", function(){
+        try{ window.localStorage.setItem(CONSENT_KEY, "accepted"); }catch(e){}
+        banner.classList.remove("visible");
+      });
+    }
+  }catch(e){
+    /* localStorage unavailable (e.g. private browsing) — fail silently, no ads-blocking behavior */
+  }
+
+})();
+</script>
+
+</body>
+</html>
