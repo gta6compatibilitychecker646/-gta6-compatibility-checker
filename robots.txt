@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://example.com/sitemap.xml
+Site: gta6compatibilitychecker646.github.io/-gta6-compatibility-checker/sitemap.xml
